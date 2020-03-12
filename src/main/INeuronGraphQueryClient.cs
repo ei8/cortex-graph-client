@@ -37,8 +37,8 @@ namespace works.ei8.Cortex.Graph.Client
 {
     public interface INeuronGraphQueryClient
     {
-        Task<IEnumerable<Neuron>> GetNeurons(string avatarUrl, Neuron central = null, RelativeType type = RelativeType.NotSet, NeuronQuery neuronQuery = null, int? limit = 1000, CancellationToken token = default(CancellationToken));
+        Task<IEnumerable<Neuron>> GetNeurons(string avatarUrl, string centralId = default(string), RelativeType type = RelativeType.NotSet, NeuronQuery neuronQuery = null, int? limit = 1000, CancellationToken token = default(CancellationToken));
 
-        Task<IEnumerable<Neuron>> GetNeuronById(string avatarUrl, string id, Neuron central = null, RelativeType type = RelativeType.NotSet, CancellationToken token = default(CancellationToken));
+        Task<IEnumerable<Neuron>> GetNeuronById(string avatarUrl, string id, string centralId = default(string), RelativeType type = RelativeType.NotSet, CancellationToken token = default(CancellationToken));
     }
 }

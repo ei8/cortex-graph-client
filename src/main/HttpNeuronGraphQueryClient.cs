@@ -46,8 +46,7 @@ namespace works.ei8.Cortex.Graph.Client
     public class HttpNeuronGraphQueryClient : INeuronGraphQueryClient
     {
         private readonly IRequestProvider requestProvider;
-        private readonly ITokenService tokenService;
-
+        
         private static Policy exponentialRetryPolicy = Policy
             .Handle<Exception>()
             .WaitAndRetryAsync(
@@ -60,37 +59,37 @@ namespace works.ei8.Cortex.Graph.Client
         private static readonly string GetRelativesPathTemplate = "cortex/graph/neurons/{0}/relatives";
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        public HttpNeuronGraphQueryClient(IRequestProvider requestProvider = null, ITokenService tokenService = null)
+        public HttpNeuronGraphQueryClient(IRequestProvider requestProvider = null)
         {
             this.requestProvider = requestProvider ?? Locator.Current.GetService<IRequestProvider>();
-            this.tokenService = tokenService ?? Locator.Current.GetService<ITokenService>();
         }
 
-        public async Task<IEnumerable<Neuron>> GetNeuronById(string avatarUrl, string id, Neuron central = null, RelativeType type = RelativeType.NotSet, CancellationToken token = default(CancellationToken)) =>
+        public async Task<IEnumerable<Neuron>> GetNeuronById(string avatarUrl, string id, string centralId = default(string), RelativeType type = RelativeType.NotSet, CancellationToken token = default(CancellationToken)) =>
             await HttpNeuronGraphQueryClient.exponentialRetryPolicy.ExecuteAsync(
-                async () => await this.GetNeuronByIdInternal(avatarUrl, id, central, type, token).ConfigureAwait(false));
+                async () => await this.GetNeuronByIdInternal(avatarUrl, id, centralId, type, token).ConfigureAwait(false));
 
-        private async Task<IEnumerable<Neuron>> GetNeuronByIdInternal(string avatarUrl, string id, Neuron central = null, RelativeType type = RelativeType.NotSet, CancellationToken token = default(CancellationToken))
+        private async Task<IEnumerable<Neuron>> GetNeuronByIdInternal(string avatarUrl, string id, string centralId = default(string), RelativeType type = RelativeType.NotSet, CancellationToken token = default(CancellationToken))
         {
             string path = string.Empty;
             var queryStringBuilder = new StringBuilder();
 
-            if (central != null && type != RelativeType.NotSet)
+            // TODO: instead of forcibly modifying the request in the else statement, should we throw an exception to inform client that type is required when central is specified?
+            if (!string.IsNullOrEmpty(centralId) && type != RelativeType.NotSet)
             {
-                path = $"{HttpNeuronGraphQueryClient.GetNeuronsPathTemplate}/{central.Id}/relatives/{id}";
+                path = $"{HttpNeuronGraphQueryClient.GetNeuronsPathTemplate}/{centralId}/relatives/{id}";
                 queryStringBuilder.Append($"?{nameof(type)}={type.ToString()}");
             }
             else
                 path = $"{HttpNeuronGraphQueryClient.GetNeuronsPathTemplate}/{id}";
 
-            return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(avatarUrl, path, queryStringBuilder, token, requestProvider, tokenService);
+            return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(avatarUrl, path, queryStringBuilder, token, requestProvider);
         }
 
-        public async Task<IEnumerable<Neuron>> GetNeurons(string avatarUrl, Neuron central = null, RelativeType type = RelativeType.NotSet, NeuronQuery neuronQuery = null, int? limit = 1000, CancellationToken token = default(CancellationToken)) =>
+        public async Task<IEnumerable<Neuron>> GetNeurons(string avatarUrl, string centralId = default(string), RelativeType type = RelativeType.NotSet, NeuronQuery neuronQuery = null, int? limit = 1000, CancellationToken token = default(CancellationToken)) =>
             await HttpNeuronGraphQueryClient.exponentialRetryPolicy.ExecuteAsync(
-                async () => await this.GetNeuronsInternal(avatarUrl, central, type, neuronQuery, limit, token).ConfigureAwait(false));
+                async () => await this.GetNeuronsInternal(avatarUrl, centralId, type, neuronQuery, limit, token).ConfigureAwait(false));
 
-        private async Task<IEnumerable<Neuron>> GetNeuronsInternal(string avatarUrl, Neuron central = null, RelativeType type = RelativeType.NotSet, NeuronQuery neuronQuery = null, int? limit = 1000, CancellationToken token = default(CancellationToken))
+        private async Task<IEnumerable<Neuron>> GetNeuronsInternal(string avatarUrl, string centralId = default(string), RelativeType type = RelativeType.NotSet, NeuronQuery neuronQuery = null, int? limit = 1000, CancellationToken token = default(CancellationToken))
         {
             var queryStringBuilder = new StringBuilder();
 
@@ -120,19 +119,18 @@ namespace works.ei8.Cortex.Graph.Client
             if (queryStringBuilder.Length > 0)
                 queryStringBuilder.Insert(0, '?');
 
-            var path = central == null ? HttpNeuronGraphQueryClient.GetNeuronsPathTemplate : string.Format(HttpNeuronGraphQueryClient.GetRelativesPathTemplate, central.Id);
+            var path = string.IsNullOrEmpty(centralId) ? HttpNeuronGraphQueryClient.GetNeuronsPathTemplate : string.Format(HttpNeuronGraphQueryClient.GetRelativesPathTemplate, centralId);
 
-            return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(avatarUrl, path, queryStringBuilder, token, requestProvider, tokenService);
+            return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(avatarUrl, path, queryStringBuilder, token, requestProvider);
         }
 
-        private static async Task<IEnumerable<Neuron>> GetNeuronsUnescaped(string avatarUrl, string path, StringBuilder queryStringBuilder, CancellationToken token, IRequestProvider requestProvider, ITokenService tokenService)
+        private static async Task<IEnumerable<Neuron>> GetNeuronsUnescaped(string avatarUrl, string path, StringBuilder queryStringBuilder, CancellationToken token, IRequestProvider requestProvider)
         {
             var result = await requestProvider.GetAsync<IEnumerable<Neuron>>(
                            $"{avatarUrl}{path}{queryStringBuilder.ToString()}",
-                           tokenService.GetAccessToken(),
-                           token
+                           token: token
                            );
-            result.ToList().ForEach(n => n.Tag = Regex.Unescape(n.Tag));
+            result.Where(n => n.Tag != null).ToList().ForEach(n => n.Tag = Regex.Unescape(n.Tag));
             return result;
         }
 
