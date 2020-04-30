@@ -31,9 +31,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using works.ei8.Cortex.Graph.Common;
+using ei8.Cortex.Graph.Common;
 
-namespace works.ei8.Cortex.Graph.Client
+namespace ei8.Cortex.Graph.Client
 {
     public interface INeuronGraphQueryClient
     {

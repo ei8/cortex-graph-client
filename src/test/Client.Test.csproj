@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>works.ei8.Cortex.Graph.Client.Test</AssemblyName>
-    <RootNamespace>works.ei8.Cortex.Graph.Client.Test</RootNamespace>
+    <AssemblyName>ei8.Cortex.Graph.Client.Test</AssemblyName>
+    <RootNamespace>ei8.Cortex.Graph.Client.Test</RootNamespace>
     <PackageId>ei8.Cortex.Graph.Client</PackageId>
     <PackageVersion>0.1.0</PackageVersion>
     <Authors>Elmer Roderick Niem Bool</Authors>
