@@ -37,10 +37,14 @@ namespace ei8.Cortex.Graph.Client
 {
     public interface INeuronGraphQueryClient
     {
-        Task<IEnumerable<Neuron>> GetNeurons(string outBaseUrl, string centralId = default(string), RelativeType type = RelativeType.NotSet, NeuronQuery neuronQuery = null, int? limit = 1000, CancellationToken token = default(CancellationToken));
+        Task<IEnumerable<Neuron>> GetNeurons(string outBaseUrl, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken));
 
-        Task<IEnumerable<Neuron>> GetNeuronById(string outBaseUrl, string id, string centralId = default(string), RelativeType type = RelativeType.NotSet, CancellationToken token = default(CancellationToken));
+        Task<IEnumerable<Neuron>> GetNeurons(string outBaseUrl, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken));
 
-        Task<Terminal> GetTerminalById(string outBaseUrl, string id, CancellationToken token = default(CancellationToken));
+        Task<Neuron> GetNeuronById(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken));
+
+        Task<IEnumerable<Neuron>> GetNeuronById(string outBaseUrl, string id, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken));
+
+        Task<Terminal> GetTerminalById(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken));
     }
 }
