@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace ei8.Cortex.Graph.Client
 {
+    // TODO: Transfer to common, shared with Library-Client
     public static class ExtensionMethods
     {
         internal static string ToQueryString(this NeuronQuery value)
@@ -21,6 +22,8 @@ namespace ei8.Cortex.Graph.Client
             ExtensionMethods.AppendQuery(value.PresynapticNot, nameof(NeuronQuery.PresynapticNot), queryStringBuilder);
             ExtensionMethods.AppendQuery(value.Postsynaptic, nameof(NeuronQuery.Postsynaptic), queryStringBuilder);
             ExtensionMethods.AppendQuery(value.PostsynapticNot, nameof(NeuronQuery.PostsynapticNot), queryStringBuilder);
+            ExtensionMethods.AppendQuery(value.RegionId, nameof(NeuronQuery.RegionId), queryStringBuilder, true);
+            ExtensionMethods.AppendQuery(value.RegionIdNot, nameof(NeuronQuery.RegionIdNot), queryStringBuilder, true);
 
             ExtensionMethods.AppendQuery(
                     value.RelativeValues,
@@ -30,8 +33,15 @@ namespace ei8.Cortex.Graph.Client
                     );
 
             ExtensionMethods.AppendQuery(
-                    value.Limit,
-                    "limit",
+                    value.PageSize,
+                    "pagesize",
+                    v => v.ToString(),
+                    queryStringBuilder
+                    );
+
+            ExtensionMethods.AppendQuery(
+                    value.Page,
+                    "page",
                     v => v.ToString(),
                     queryStringBuilder
                     );
@@ -50,25 +60,39 @@ namespace ei8.Cortex.Graph.Client
                     queryStringBuilder
                     );
 
+            ExtensionMethods.AppendQuery(
+                    value.SortOrder,
+                    "sortorder",
+                    v => ((int)v).ToString(),
+                    queryStringBuilder
+                    );
+
+            ExtensionMethods.AppendQuery(
+                    value.SortBy,
+                    "sortby",
+                    v => ((int)v).ToString(),
+                    queryStringBuilder
+                    );
+
             if (queryStringBuilder.Length > 0)
                 queryStringBuilder.Insert(0, '?');
 
             return queryStringBuilder.ToString();
         }
 
-        internal static void UnescapeTag(this Neuron value)
+        internal static void UnescapeTag(this NeuronResult value)
         {
             if (value.Tag != null)
                 value.Tag = Regex.Unescape(value.Tag);
         }
 
-        private static void AppendQuery(IEnumerable<string> field, string fieldName, StringBuilder queryStringBuilder)
+        private static void AppendQuery(IEnumerable<string> field, string fieldName, StringBuilder queryStringBuilder, bool convertNulls = false)
         {
             if (field != null && field.Any())
             {
                 if (queryStringBuilder.Length > 0)
                     queryStringBuilder.Append('&');
-                queryStringBuilder.Append(string.Join("&", field.Select(s => $"{fieldName}={s}")));
+                queryStringBuilder.Append(string.Join("&", field.Select(s => $"{fieldName}={(convertNulls && s == null ? "\0" : s)}")));
             }
         }
         private static void AppendQuery<T>(Nullable<T> nullableValue, string queryStringKey, Func<T, string> valueProcessor, StringBuilder queryStringBuilder) where T : struct

@@ -66,28 +66,26 @@ namespace ei8.Cortex.Graph.Client
             this.requestProvider = requestProvider ?? Locator.Current.GetService<IRequestProvider>();
         }
 
-        public async Task<Neuron> GetNeuronById(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
+        public async Task<QueryResult> GetNeuronById(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
             await HttpNeuronGraphQueryClient.exponentialRetryPolicy.ExecuteAsync(
                 async () => await this.GetNeuronByIdInternal(outBaseUrl, id, neuronQuery, token).ConfigureAwait(false));
 
-        private async Task<Neuron> GetNeuronByIdInternal(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
+        private async Task<QueryResult> GetNeuronByIdInternal(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
         {
-            var result = await requestProvider.GetAsync<Neuron>(
-                           $"{outBaseUrl}{HttpNeuronGraphQueryClient.GetNeuronsPathTemplate}/{id}{neuronQuery.ToQueryString()}",
-                           token: token
-                           );
-
-            if (result != null)
-                result.UnescapeTag();
-
-            return result;
+            return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(
+                outBaseUrl,
+                $"{HttpNeuronGraphQueryClient.GetNeuronsPathTemplate}/{id}",
+                neuronQuery.ToQueryString(),
+                token,
+                requestProvider
+                );
         }
 
-        public async Task<IEnumerable<Neuron>> GetNeuronById(string outBaseUrl, string id, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
+        public async Task<QueryResult> GetNeuronById(string outBaseUrl, string id, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
             await HttpNeuronGraphQueryClient.exponentialRetryPolicy.ExecuteAsync(
                 async () => await this.GetNeuronByIdWithCentralInternal(outBaseUrl, id, centralId, neuronQuery, token).ConfigureAwait(false));
 
-        private async Task<IEnumerable<Neuron>> GetNeuronByIdWithCentralInternal(string outBaseUrl, string id, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
+        private async Task<QueryResult> GetNeuronByIdWithCentralInternal(string outBaseUrl, string id, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
         {
             return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(
                 outBaseUrl,
@@ -98,14 +96,14 @@ namespace ei8.Cortex.Graph.Client
                 );
         }
 
-        public async Task<IEnumerable<Neuron>> GetNeurons(string outBaseUrl, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
+        public async Task<QueryResult> GetNeurons(string outBaseUrl, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
             await this.GetNeurons(outBaseUrl, null, neuronQuery, token);
 
-        public async Task<IEnumerable<Neuron>> GetNeurons(string outBaseUrl, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
+        public async Task<QueryResult> GetNeurons(string outBaseUrl, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
             await HttpNeuronGraphQueryClient.exponentialRetryPolicy.ExecuteAsync(
                 async () => await this.GetNeuronsInternal(outBaseUrl, centralId, neuronQuery, token).ConfigureAwait(false));
 
-        private async Task<IEnumerable<Neuron>> GetNeuronsInternal(string outBaseUrl, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
+        private async Task<QueryResult> GetNeuronsInternal(string outBaseUrl, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
         {
             var path = string.IsNullOrEmpty(centralId) ? 
                 HttpNeuronGraphQueryClient.GetNeuronsPathTemplate : 
@@ -114,13 +112,13 @@ namespace ei8.Cortex.Graph.Client
             return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(outBaseUrl, path, neuronQuery.ToQueryString(), token, requestProvider);
         }
         
-        private static async Task<IEnumerable<Neuron>> GetNeuronsUnescaped(string outBaseUrl, string path, string queryString, CancellationToken token, IRequestProvider requestProvider)
+        private static async Task<QueryResult> GetNeuronsUnescaped(string outBaseUrl, string path, string queryString, CancellationToken token, IRequestProvider requestProvider)
         {
-            var result = await requestProvider.GetAsync<IEnumerable<Neuron>>(
+            var result = await requestProvider.GetAsync<QueryResult>(
                            $"{outBaseUrl}{path}{queryString}",
                            token: token
                            );
-            result.ToList().ForEach(n => n.UnescapeTag());
+            result.Neurons.ToList().ForEach(n => n.UnescapeTag());
             return result;
         }
 
