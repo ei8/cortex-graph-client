@@ -122,13 +122,13 @@ namespace ei8.Cortex.Graph.Client
             return result;
         }
 
-        public async Task<Terminal> GetTerminalById(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default) =>
+        public async Task<QueryResult> GetTerminalById(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default) =>
             await HttpNeuronGraphQueryClient.exponentialRetryPolicy.ExecuteAsync(
                 async () => await this.GetTerminalByIdInternal(outBaseUrl, id, neuronQuery, token).ConfigureAwait(false));
 
-        private async Task<Terminal> GetTerminalByIdInternal(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
+        private async Task<QueryResult> GetTerminalByIdInternal(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
         {
-            return await this.requestProvider.GetAsync<Terminal>(
+            return await this.requestProvider.GetAsync<QueryResult>(
                 $"{outBaseUrl}{string.Format(HttpNeuronGraphQueryClient.GetTerminalsPathTemplate, id)}{neuronQuery.ToQueryString()}",
                 token: token
                 );
