@@ -58,7 +58,7 @@ namespace ei8.Cortex.Graph.Client
 
         private static readonly string GetNeuronsPathTemplate = "cortex/graph/neurons";
         private static readonly string GetRelativesPathTemplate = "cortex/graph/neurons/{0}/relatives";
-        private static readonly string GetTerminalsPathTemplate = "cortex/graph/terminals/{0}";
+        private static readonly string GetTerminalsPathTemplate = "cortex/graph/terminals";
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         public HttpNeuronGraphQueryClient(IRequestProvider requestProvider = null)
@@ -129,7 +129,19 @@ namespace ei8.Cortex.Graph.Client
         private async Task<QueryResult> GetTerminalByIdInternal(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
         {
             return await this.requestProvider.GetAsync<QueryResult>(
-                $"{outBaseUrl}{string.Format(HttpNeuronGraphQueryClient.GetTerminalsPathTemplate, id)}{neuronQuery.ToQueryString()}",
+                $"{outBaseUrl}{HttpNeuronGraphQueryClient.GetTerminalsPathTemplate}/{id}{neuronQuery.ToQueryString()}",
+                token: token
+                );
+        }
+
+        public async Task<QueryResult> GetTerminals(string outBaseUrl, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
+            await HttpNeuronGraphQueryClient.exponentialRetryPolicy.ExecuteAsync(
+                async () => await this.GetTerminalsInternal(outBaseUrl, neuronQuery, token).ConfigureAwait(false));
+
+        private async Task<QueryResult> GetTerminalsInternal(string outBaseUrl, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
+        {
+            return await requestProvider.GetAsync<QueryResult>(
+                $"{outBaseUrl}{HttpNeuronGraphQueryClient.GetTerminalsPathTemplate}{neuronQuery.ToQueryString()}",
                 token: token
                 );
         }

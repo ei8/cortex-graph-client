@@ -45,6 +45,8 @@ namespace ei8.Cortex.Graph.Client
 
         Task<QueryResult> GetNeuronById(string outBaseUrl, string id, string centralId, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken));
 
+        Task<QueryResult> GetTerminals(string outBaseUrl, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken));
+        
         Task<QueryResult> GetTerminalById(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken));
     }
 }
