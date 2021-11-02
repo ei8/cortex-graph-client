@@ -75,7 +75,7 @@ namespace ei8.Cortex.Graph.Client
             return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(
                 outBaseUrl,
                 $"{HttpNeuronGraphQueryClient.GetNeuronsPathTemplate}/{id}",
-                neuronQuery.ToQueryString(),
+                neuronQuery.ToString(),
                 token,
                 requestProvider
                 );
@@ -90,7 +90,7 @@ namespace ei8.Cortex.Graph.Client
             return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(
                 outBaseUrl,
                 $"{HttpNeuronGraphQueryClient.GetNeuronsPathTemplate}/{centralId}/relatives/{id}", 
-                neuronQuery.ToQueryString(), 
+                neuronQuery.ToString(), 
                 token, 
                 requestProvider
                 );
@@ -109,7 +109,7 @@ namespace ei8.Cortex.Graph.Client
                 HttpNeuronGraphQueryClient.GetNeuronsPathTemplate : 
                 string.Format(HttpNeuronGraphQueryClient.GetRelativesPathTemplate, centralId);
 
-            return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(outBaseUrl, path, neuronQuery.ToQueryString(), token, requestProvider);
+            return await HttpNeuronGraphQueryClient.GetNeuronsUnescaped(outBaseUrl, path, neuronQuery.ToString(), token, requestProvider);
         }
         
         private static async Task<QueryResult> GetNeuronsUnescaped(string outBaseUrl, string path, string queryString, CancellationToken token, IRequestProvider requestProvider)
@@ -129,7 +129,7 @@ namespace ei8.Cortex.Graph.Client
         private async Task<QueryResult> GetTerminalByIdInternal(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
         {
             return await this.requestProvider.GetAsync<QueryResult>(
-                $"{outBaseUrl}{HttpNeuronGraphQueryClient.GetTerminalsPathTemplate}/{id}{neuronQuery.ToQueryString()}",
+                $"{outBaseUrl}{HttpNeuronGraphQueryClient.GetTerminalsPathTemplate}/{id}{neuronQuery.ToString()}",
                 token: token
                 );
         }
@@ -141,7 +141,7 @@ namespace ei8.Cortex.Graph.Client
         private async Task<QueryResult> GetTerminalsInternal(string outBaseUrl, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken))
         {
             return await requestProvider.GetAsync<QueryResult>(
-                $"{outBaseUrl}{HttpNeuronGraphQueryClient.GetTerminalsPathTemplate}{neuronQuery.ToQueryString()}",
+                $"{outBaseUrl}{HttpNeuronGraphQueryClient.GetTerminalsPathTemplate}{neuronQuery.ToString()}",
                 token: token
                 );
         }

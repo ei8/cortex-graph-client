@@ -5,13 +5,13 @@
     <AssemblyName>ei8.Cortex.Graph.Client</AssemblyName>
     <RootNamespace>ei8.Cortex.Graph.Client</RootNamespace>
     <PackageId>ei8.Cortex.Graph.Client</PackageId>
-    <PackageVersion>0.2.3</PackageVersion>
+    <PackageVersion>0.2.4</PackageVersion>
     <Authors>Elmer Roderick Niem Bool</Authors>
     <Description>Cortex Graph Client</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Initial.</PackageReleaseNotes>
     <PackageTags>cortex graph client</PackageTags>
-    <Version>0.2.3</Version>
+    <Version>0.2.4</Version>
     <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
   </PropertyGroup>
 
@@ -30,8 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ei8.Cortex.Graph.Common" Version="0.2.3" />
-    <PackageReference Include="Neurul.Common.Http" Version="0.1.13" />
+    <PackageReference Include="ei8.Cortex.Graph.Common" Version="0.2.9" />
+    <PackageReference Include="Neurul.Common.Http" Version="0.1.15" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
     <PackageReference Include="NLog" Version="4.5.0" />
     <PackageReference Include="Polly" Version="5.6.1" />
