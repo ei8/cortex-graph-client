@@ -41,6 +41,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ei8.Cortex.Graph.Common;
 using neurUL.Common.Domain.Model;
+using Polly.Retry;
 
 namespace ei8.Cortex.Graph.Client
 {
@@ -48,7 +49,7 @@ namespace ei8.Cortex.Graph.Client
     {
         private readonly IRequestProvider requestProvider;
         
-        private static Policy exponentialRetryPolicy = Policy
+        private static AsyncRetryPolicy exponentialRetryPolicy = Policy
             .Handle<Exception>()
             .WaitAndRetryAsync(
                 3,
