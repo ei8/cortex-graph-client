@@ -64,7 +64,10 @@ namespace ei8.Cortex.Graph.Client
 
         public HttpNeuronGraphQueryClient(IRequestProvider requestProvider = null)
         {
-            this.requestProvider = requestProvider ?? Locator.Current.GetService<IRequestProvider>();
+            var rp = requestProvider ?? Locator.Current.GetService<IRequestProvider>();
+            AssertionConcern.AssertArgumentNotNull(rp, nameof(requestProvider));
+
+            this.requestProvider = rp;
         }
 
         public async Task<QueryResult> GetNeuronById(string outBaseUrl, string id, NeuronQuery neuronQuery, CancellationToken token = default(CancellationToken)) =>
