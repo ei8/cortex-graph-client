@@ -32,7 +32,7 @@
   <ItemGroup>
     <PackageReference Include="ei8.Cortex.Graph.Common" Version="0.3.12" />
     <PackageReference Include="Neurul.Common.Http" Version="0.1.15" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="4.5.0" />
     <PackageReference Include="Polly" Version="7.2.3" />
     <PackageReference Include="Splat" Version="9.0.5" />
